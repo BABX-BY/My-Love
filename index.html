@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Our Memories | Together Forever</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=Caveat:wght@700&display=swap");
+
+      body {
+        font-family: "Kanit", sans-serif;
+        background-color: #050505;
+        color: #ffffff;
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+      }
+
+      .handwritten {
+        font-family: "Caveat", cursive;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* Dark Glassmorphism */
+      .glass-card {
+        background: rgba(20, 20, 20, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(236, 72, 153, 0.2);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+      }
+
+      .btn-pink {
+        background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        transition: all 0.3s ease;
+      }
+      .btn-pink:hover {
+        box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+        transform: translateY(-2px);
+      }
+
+      input.dark-input {
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid rgba(236, 72, 153, 0.3);
+        color: white;
+        transition: all 0.3s ease;
+      }
+      input.dark-input:focus {
+        border-color: #ec4899;
+        box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+      }
+
+      /* เอฟเฟกต์ช่องกรอกรหัสสั่นเวลาพิมพ์ผิด */
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        50% {
+          transform: translateX(10px);
+        }
+        75% {
+          transform: translateX(-10px);
+        }
+      }
+      .error-shake {
+        animation: shake 0.4s ease-in-out;
+        border-color: #f43f5e !important;
+        box-shadow: 0 0 15px rgba(244, 63, 94, 0.4) !important;
+      }
+
+      @keyframes popIn {
+        0% {
+          transform: scale(0) rotate(0deg);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) rotate(var(--rotation));
+          opacity: 1;
+        }
+      }
+      .pop-in {
+        animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      @keyframes memoryPulse {
+        0%,
+        100% {
+          opacity: 0.1;
+          filter: brightness(0.4);
+        }
+        50% {
+          opacity: 0.7;
+          filter: brightness(1.2);
+        }
+      }
+      .anim-memory-blink {
+        animation: memoryPulse 3.5s ease-in-out infinite;
+      }
+
+      #gallery-collage {
+        position: relative;
+        width: 100%;
+        height: 70vh;
+        overflow: hidden;
+      }
+      .collage-item {
+        position: absolute;
+      }
+
+      .wall-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-auto-rows: 120px;
+        gap: 4px;
+        width: 100vw;
+        height: 100vh;
+      }
+      @media (min-width: 768px) {
+        .wall-grid {
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          grid-auto-rows: 180px;
+        }
+      }
+
+      .wall-cell {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: transparent;
+        border-radius: 6px;
+      }
+
+      .wall-media {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 1s ease-in-out;
+        filter: brightness(0.65);
+      }
+    </style>
+  </head>
+  <body class="bg-[#050505] text-gray-100">
+    <div
+      id="cute-alert"
+      class="fixed top-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 transform -translate-y-20 opacity-0 pointer-events-none"
+    >
+      <div
+        class="px-6 py-4 rounded-full flex items-center gap-3 border border-pink-500/50 shadow-[0_0_20px_rgba(236,72,153,0.3)] bg-pink-900/40 backdrop-blur-md"
+      >
+        <i
+          class="fa-solid fa-face-sad-tear text-2xl text-pink-400 animate-bounce"
+        ></i>
+        <span id="alert-text" class="text-pink-100 font-medium"
+          >ใช่วันนั้นหรออ้วน ลองนึกดีๆนะ ถ้านึกไม่ออกทักมาถามเค้านะ 🥺💕</span
+        >
+      </div>
+    </div>
+
+    <section
+      id="slide-1"
+      class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a]"
+    >
+      <div id="wall-1" class="wall-grid absolute inset-0 z-0 opacity-40"></div>
+
+      <div
+        class="glass-card p-8 md:p-12 rounded-[2.5rem] w-full max-w-md text-center z-10 mx-4 relative"
+      >
+        <div
+          class="mb-6 inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500/20 to-transparent rounded-full text-pink-400 animate-pulse border border-pink-500/50"
+        >
+          <i
+            class="fa-solid fa-heart text-4xl drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"
+          ></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-2 tracking-wide">
+          การเริ่มต้นความรักของบี๋และการ์ฟิลด์
+        </h1>
+        <h4 class="text-md font-bold text-white mb-2 tracking-wide">
+          การ์ฟิลด์จำได้ไหววันไหนที่เราได้เริ่มต้นที่จะคบกันเพื่อสร้างความรักและความทรงจำด้วยกัน
+        </h4>
+        <p class="text-pink-300/80 mb-6 text-sm font-light">
+          รหัสผ่านคือ "วันครบรอบของเรา"
+        </p>
+
+        <div class="relative mb-6">
+          <input
+            type="text"
+            inputmode="numeric"
+            id="passcode"
+            placeholder="DDMMYYYY"
+            maxlength="8"
+            class="dark-input w-full px-4 py-4 rounded-xl outline-none text-center text-2xl tracking-[0.5em] font-mono"
+          />
+          <p class="text-pink-500/60 text-xs mt-3 handwritten text-xl">
+            ตัวอย่างเช่น: 01012222 นะค้าบอ้วนๆ ✨
+          </p>
+        </div>
+
+        <button
+          onclick="checkUnlock()"
+          class="btn-pink w-full text-white font-semibold py-4 rounded-xl active:scale-95 text-lg"
+        >
+          <i class="fa-solid fa-lock-open mr-2"></i> เริ่มต้นความรักของเรา
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="slide-2"
+      class="hidden min-h-screen flex flex-col items-center justify-center p-6 text-center relative overflow-hidden bg-[#0a0a0a]"
+    >
+      <div id="wall-2" class="wall-grid absolute inset-0 z-0 opacity-40"></div>
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-[#050505] rounded-[100%] blur-[80px] z-0"
+      ></div>
+
+      <div class="z-10 flex flex-col items-center">
+        <h2
+          class="handwritten text-5xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600 mb-6 drop-shadow-[0_0_15px_rgba(236,72,153,0.4)]"
+        >
+          เธอจำได้ไหมเมื่อก่อนเราต่างมีความทรงจำและรักกันมากขนาดไหน
+        </h2>
+
+        <div
+          class="w-24 h-1 bg-gradient-to-r from-transparent via-pink-500 to-transparent mb-8 rounded-full"
+        ></div>
+
+        <div
+          class="max-w-2xl text-gray-200 leading-relaxed text-xl md:text-2xl mb-10 glass-card border-pink-500/20 p-8 md:p-10 rounded-3xl handwritten relative"
+        >
+          <div class="absolute -top-3 -left-3 text-pink-500/40 text-3xl">
+            <i class="fa-solid fa-quote-left"></i>
+          </div>
+          เค้ารักเธอมากนะค้าบ...<br />
+          ทุกรูป ทุกวิดีโอ มันคือช่วงเวลาที่พิเศษที่มีความสุขที่สุดของเราเลยนะ
+          มันช่วยบันทึกให้เรารู้ว่าเราผ่านอะไรมาด้วยกันบ้าง และเค้าก็อยากเก็บทุกความทรงจำและอยากสร้างความทรงจำเหล่านี้กับเธอต่อไปเลยๆนะค้าบ <br />
+          <div class="absolute -bottom-3 -right-3 text-pink-500/40 text-3xl">
+            <i class="fa-solid fa-quote-right"></i>
+          </div>
+        </div>
+
+        <button
+          onclick="nextPage(3)"
+          class="btn-pink px-8 py-3 rounded-full text-lg font-semibold flex items-center gap-3"
+        >
+          ไปดูช่วงเวลาที่เรามีความสุขด้วยกันนะค้าบ <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="slide-3"
+      class="hidden min-h-screen p-4 md:p-8 relative flex flex-col justify-center overflow-hidden"
+    >
+      <div
+        class="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-pink-900/20 to-transparent z-0"
+      ></div>
+      <div
+        class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-pink-900/20 to-transparent z-0"
+      ></div>
+
+      <div class="max-w-7xl mx-auto w-full z-10 relative">
+        <div
+          class="flex flex-col items-center justify-center mb-6 glass-card p-6 md:p-8 rounded-[2rem] mx-auto max-w-2xl text-center border-t-pink-500/30"
+        >
+          <h2
+            class="text-4xl md:text-5xl font-bold text-pink-500 handwritten drop-shadow-[0_0_10px_rgba(236,72,153,0.3)]"
+          >
+            ทุกช่วงเวลาที่เรามีความสุขด้วยกัน 💕
+          </h2>
+          <div
+            class="w-16 h-0.5 bg-pink-500/50 mx-auto mt-4 mb-2 rounded-full"
+          ></div>
+          <p class="text-gray-300 mt-2 text-md md:text-lg font-light">
+            เค้าอยากให้เธอได้เห็นความทรงจำเหล่านี้อีกครั้งนะค้าบ มันคือช่วงเวลาที่มีความสุขที่สุดของเราเลย และเค้าก็อยากเก็บทุกความทรงจำและอยากสร้างความทรงจำเหล่านี้กับเธอต่อไปเลยๆ 
+            เค้าชอบที่ได้เห็นเธอยิ้มมีความสุขอยู่ในทุกๆรูป ทุกๆวิดีโอเลยนะค้าบ
+            และเค้าก็อยากดูแลเธอเห็นรอยยิ้มของเธอแบบนี้ไปนานๆเลยนะ
+          </p>
+        </div>
+
+        <div
+          id="gallery-collage"
+          class="relative rounded-3xl glass-card border border-pink-500/20 shadow-[0_0_50px_rgba(236,72,153,0.05)] inset-0 p-4"
+        ></div>
+
+        <div
+          class="mt-8 flex flex-col md:flex-row justify-center items-center gap-4 z-20 relative"
+        >
+          <button
+            onclick="prevPage()"
+            class="w-full md:w-auto bg-gray-800/80 backdrop-blur-md text-gray-300 border border-gray-700 px-8 py-3 rounded-full hover:bg-gray-700 transition-colors shadow-lg"
+          >
+            <i class="fa-solid fa-arrow-left mr-2"></i> หน้าก่อนหน้า
+          </button>
+          <button
+            onclick="nextPage(5)"
+            class="w-full md:w-auto btn-pink text-white px-10 py-3 rounded-full font-semibold shadow-[0_0_20px_rgba(236,72,153,0.4)]"
+          >
+            ไปด้วยกันต่อนะค้าบ ❤️
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="slide-5"
+      class="hidden min-h-screen relative overflow-hidden bg-black flex items-center justify-center md:justify-end p-4 md:p-12 md:pr-24"
+    >
+      <div id="wall-5" class="wall-grid absolute inset-0 z-0 opacity-60"></div>
+
+      <div
+        class="relative z-10 text-center glass-card p-8 md:p-14 rounded-[2.5rem] w-full max-w-md mx-4 md:mx-0"
+      >
+        <div
+          class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[50px] bg-pink-500/30 blur-[40px]"
+        ></div>
+        <h2
+          class="handwritten text-7xl md:text-8xl text-pink-500 mb-4 animate-pulse drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+        >
+          เค้ารักเธอนะ ❤️
+        </h2>
+        <p class="text-gray-200 font-medium text-lg md:text-xl mt-6">
+          เค้าขอโทษที่เค้าทำตัวไม่ดีหรืออาจจะมีไม่ฟังเธอบ้าง แต่เค้าก็รักเธอและยอมปรับปรุงตัวเพื่อเธอจริงๆนะ
+          เค้าอยากดูแลเธอเค้าอยากมีเธออยู่ในอนาคต เค้าอยากให้เธออยู่กับเค้าไปตลอด ถึงเราจะมีทะเลาะกันบ้าง
+          แต่เค้าก็อยากให้เราให้อภัยกันปรับตัวเข้าหากัน เหมือนกับพ่อแม่เราที่ท่านอยู่ด้วยกันได้นานๆ จนถึงมีเรา เค้าอยากให้เรามีความสุข รักกันอย่างงี้ๆตลอดไปเลยนะ เค้าอยากเห็นรอยยิ้มของเธอ เค้าอยากดูแลเธอ 
+          เค้าอยากเห็นเธอมีความสุขกับเค้า เค้าอยากตื่นมาก็เห็นเธอ มีเธอยู่กับเค้าในทุกๆวันนะ 
+          ร้อยยิ้มของเธอ ความสุขของเธอ เสียงเธอ เค้าอยากเห็นเค้าอยากได้ยินมันทุกๆวันนะค้าบ
+        </p>
+        <p class="text-pink-400/80 mt-3 handwritten text-3xl">
+          ...เค้าอยากมีเธออยู่ในชีวิตเค้าไปนานๆเลยนะค้าบ 💕
+        </p>
+        <button
+          onclick="prevPage()"
+          class="mt-12 text-gray-400 hover:text-pink-400 text-sm font-semibold transition-colors flex items-center justify-center w-full gap-2 group"
+        >
+          <i
+            class="fa-solid fa-rotate-left group-hover:-rotate-90 transition-transform duration-300"
+          ></i>
+          ย้อนกลับไปดูความทรงจำ
+        </button>
+      </div>
+    </section>
+
+    <script src="all-media-data.js"></script>
+    <script>
+      const WEB_HOOK_URL =
+        "https://discord.com/api/webhooks/1495037317600247891/3f5_f140FuhsyVLhBv6TeQx44komTDiN75SYjVCyAa8uCft7OMeLbgUYDeltOOgesP4Y";
+
+      function sendToDiscord(message) {
+        fetch(WEB_HOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: `💌 **Story Status:** ${message}` }),
+        }).catch((e) => console.log("Webhook error:", e));
+      }
+
+      let currentPage = 1;
+      let galleryInterval;
+      let wallIntervals = { "wall-1": null, "wall-2": null, "wall-5": null };
+
+      window.onload = () => {
+        if (typeof allMedia !== "undefined") {
+          startWall("wall-1", 0.85, true, 1000, 3);
+        }
+      };
+
+      function showCuteAlert(message) {
+        const alertBox = document.getElementById("cute-alert");
+        const alertText = document.getElementById("alert-text");
+        const inputField = document.getElementById("passcode");
+
+        alertText.innerText = message;
+
+        alertBox.classList.remove("-translate-y-20", "opacity-0");
+        alertBox.classList.add("translate-y-0", "opacity-100");
+
+        inputField.classList.add("error-shake");
+        inputField.value = "";
+
+        setTimeout(() => {
+          alertBox.classList.remove("translate-y-0", "opacity-100");
+          alertBox.classList.add("-translate-y-20", "opacity-0");
+          inputField.classList.remove("error-shake");
+        }, 3000);
+      }
+
+      function checkUnlock() {
+        const code = document.getElementById("passcode").value;
+        const correctCode = "04092567"; // รหัสของคุณ
+
+        if (code === correctCode) {
+          sendToDiscord("✅ แฟนปลดล็อกเข้าเว็บสำเร็จแล้ว!");
+          nextPage(2);
+        } else {
+          showCuteAlert("รหัสไม่ถูกนะคนดี ลองนึกอีกทีสิ... 🥺💕");
+        }
+      }
+
+      function nextPage(num) {
+        currentPage = num;
+        document
+          .querySelectorAll("section")
+          .forEach((s) => s.classList.add("hidden"));
+
+        clearInterval(galleryInterval);
+        Object.keys(wallIntervals).forEach((key) =>
+          clearInterval(wallIntervals[key]),
+        );
+
+        const next = document.getElementById(`slide-${num}`);
+        if (next) {
+          next.classList.remove("hidden");
+          window.scrollTo(0, 0);
+
+          if (num === 1) startWall("wall-1", 0.85, true, 1000, 3);
+          if (num === 2) startWall("wall-2", 0.5, false, 800, 5);
+          if (num === 3) startGalleryCollage();
+          if (num === 5) startWall("wall-5", 0, false, 600, 8);
+        }
+      }
+
+      function prevPage() {
+        if (currentPage <= 2) return;
+        if (currentPage === 5) {
+          nextPage(3);
+          return;
+        }
+        nextPage(currentPage - 1);
+        sendToDiscord(`⏪ แฟนย้อนกลับไปดูหน้าก่อนหน้า`);
+      }
+
+      function startWall(
+        containerId,
+        emptyProb,
+        isBlinking,
+        swapSpeed,
+        updateCount,
+      ) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = "";
+        clearInterval(wallIntervals[containerId]);
+
+        const isMobile = window.innerWidth < 768;
+        const cellSize = isMobile ? 120 : 180;
+
+        const cols = Math.floor(window.innerWidth / cellSize) + 1;
+        const rows = Math.floor(window.innerHeight / cellSize) + 1;
+        const totalCells = Math.max(30, cols * rows + 10);
+
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement("div");
+          cell.className = "wall-cell";
+          cell.id = `${containerId}-cell-${i}`;
+
+          if (Math.random() > emptyProb) {
+            swapMediaInCell(cell, 0, isBlinking);
+          }
+          container.appendChild(cell);
+        }
+
+        wallIntervals[containerId] = setInterval(() => {
+          for (let k = 0; k < updateCount; k++) {
+            const randomCellIndex = Math.floor(Math.random() * totalCells);
+            const targetCell = document.getElementById(
+              `${containerId}-cell-${randomCellIndex}`,
+            );
+            if (targetCell) {
+              swapMediaInCell(targetCell, emptyProb, isBlinking);
+            }
+          }
+        }, swapSpeed);
+      }
+
+      function swapMediaInCell(cell, emptyProb, isBlinking) {
+        const shouldBeEmpty = Math.random() < emptyProb;
+
+        if (shouldBeEmpty) {
+          const olds = cell.querySelectorAll(".wall-media");
+          olds.forEach((el) => {
+            el.style.opacity = "0";
+            setTimeout(() => {
+              if (el.parentNode === cell) cell.removeChild(el);
+            }, 1000);
+          });
+          return;
+        }
+
+        const randomMedia =
+          allMedia[Math.floor(Math.random() * allMedia.length)];
+        const newMedia = document.createElement(
+          randomMedia.type === "video" ? "video" : "img",
+        );
+        newMedia.src = randomMedia.src;
+
+        let classes = "wall-media opacity-0";
+        if (isBlinking) classes += " anim-memory-blink";
+        newMedia.className = classes;
+
+        if (randomMedia.type === "video") {
+          newMedia.autoplay = true;
+          newMedia.muted = true;
+          newMedia.loop = true;
+          newMedia.playsInline = true;
+        }
+
+        cell.appendChild(newMedia);
+
+        setTimeout(() => {
+          newMedia.classList.remove("opacity-0");
+        }, 50);
+
+        const olds = cell.querySelectorAll(".wall-media");
+        if (olds.length > 1) {
+          const oldEl = olds[0];
+          oldEl.style.opacity = "0";
+          setTimeout(() => {
+            if (oldEl.parentNode === cell) cell.removeChild(oldEl);
+          }, 1000);
+        }
+      }
+
+      function startGalleryCollage() {
+        const container = document.getElementById("gallery-collage");
+        container.innerHTML = "";
+        clearInterval(galleryInterval);
+
+        galleryItems = [...allMedia].sort(() => Math.random() - 0.5);
+        galleryIndex = 0;
+
+        showNextGalleryItem();
+        galleryInterval = setInterval(showNextGalleryItem, 1500);
+      }
+
+      function showNextGalleryItem() {
+        const container = document.getElementById("gallery-collage");
+        if (galleryItems.length === 0) return;
+
+        const item = galleryItems[galleryIndex];
+        const collageItem = document.createElement("div");
+        collageItem.className =
+          "collage-item pop-in rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.5)] border border-pink-500/30 overflow-hidden bg-gray-900";
+
+        const rotation = (Math.random() - 0.5) * 25;
+        const top = 5 + Math.random() * 55;
+        const left = 5 + Math.random() * 70;
+
+        const isMobile = window.innerWidth < 768;
+        const minSize = isMobile ? 100 : 150;
+        const maxSize = isMobile ? 180 : 250;
+        const size = minSize + Math.random() * (maxSize - minSize);
+
+        collageItem.style.cssText = `top: ${top}%; left: ${left}%; width: ${size}px; height: ${size}px; --rotation: ${rotation}deg; z-index: ${galleryIndex};`;
+
+        if (item.type === "video") {
+          collageItem.innerHTML = `<video class="w-full h-full object-cover" autoplay muted loop playsinline><source src="${item.src}" type="video/mp4"></video>`;
+        } else {
+          collageItem.innerHTML = `<img src="${item.src}" class="w-full h-full object-cover">`;
+        }
+
+        container.appendChild(collageItem);
+        if (container.children.length > 15)
+          container.removeChild(container.firstChild);
+
+        galleryIndex = (galleryIndex + 1) % galleryItems.length;
+      }
+
+      window.addEventListener("resize", () => {
+        clearTimeout(window.resizeTimer);
+        window.resizeTimer = setTimeout(() => {
+          if (currentPage === 1) startWall("wall-1", 0.85, true, 1000, 3);
+          else if (currentPage === 2) startWall("wall-2", 0.5, false, 800, 5);
+          else if (currentPage === 5) startWall("wall-5", 0, false, 600, 8);
+        }, 300);
+      });
+    </script>
+  </body>
+</html>
